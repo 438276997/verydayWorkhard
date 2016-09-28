@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title></title>
+<style>
+	ul {
+		list-style: none;
+		padding: 0;
+		width: 800px;
+		margin: 0 auto;		
+	}
+	ul li{
+		float: left;
+		width:159px;
+		height:240px;
+		margin: 20px 0 0 20px;
+		
+	}
+	#btn{
+		position: absolute;
+		left: 650px;
+		top: 550px;
+	}
+	.clearFix:after{
+		content: "";
+		clear: both;
+		display: block;
+	}
+</style>
+<script src="MTween3.js"></script>
+<script src="tools.js"></script>
+<script>
+	window.onload = function(){
+		var btn = document.getElementById('btn');
+		var list = document.getElementById('list');
+		//生成li结构；
+		var num = 8;//图片数量
+		var html = ''
+		var arr = [];
+		for (var i = 0;i < num;i++) {
+			html += '<li><img src="img/'+(i+1)+'.jpg"/></li>'
+		}
+		list.innerHTML = html 
+	
+		//获取list里面的li
+		var listLi = list.getElementsByTagName('li')
+		for (var j = 0;j < listLi.length;j++) {
+			//把每个li的位置放到一个对象里，然后在放到arr数组里
+			arr.push({
+				left:listLi[j].offsetLeft,
+				top:listLi[j].offsetTop
+			})		
+		};
+		//给每个li定好位置
+		for (var k = 0;k < arr.length;k++) {
+			listLi[k].style.margin = 0
+			listLi[k].style.position = 'absolute';
+			listLi[k].style.left = arr[k].left+'px';
+			listLi[k].style.top = arr[k].top+'px';		
+		}
+		//点击打乱循序时候
+		btn.addEventListener('click',function(){
+			for (var j = 0;j < listLi.length;j++) {
+				if(listLi[j].timer)return;
+			}	
+			var arr1 = arr.sort(function(){
+				return Math.random()-0.5
+			});
+			//让每个li做运动
+			for(var i = 0;i < listLi.length;i++)
+			MTween(listLi[i],{top:arr1[i].top,left:arr1[i].left},600,'linear');					
+		},false)
+		
+		//拖拽
+		for (var i = 0; i < listLi.length; i++) {
+			drag(listLi[i]);
+			listLi[i].index = i
+		}
+	
+		var z = 1;//提升层级
+		//拖拽
+		function drag(obj){
+			disX = 0;
+			disY = 0;
+			obj.onmousedown = function(ev){
+				var ev = ev || window.event;
+				obj.style.zIndex = z++;
+				disX = ev.clientX - obj.offsetLeft;
+				disY = ev.clientY - obj.offsetTop;
+				document.onmousemove = function(ev){
+					var ev = ev || window.event;
+					obj.style.left = ev.clientX - disX+'px';
+					obj.style.top = ev.clientY - disY+'px';
+					//清空边框
+					for (var i = 0;i <listLi.length;i++) {
+						listLi[i].style.border = '';
+					}
+					//把离自身距离最近的元素付给变量
+					var nl  = pz(obj);
+					//如果有最近的距离，最近距离的元素加上边框
+					if (nl) {
+						nl.style.border = '1px solid red';
+					}
+					
+				};
+				document.onmouseup = function(){
+					document.onmousemove = document.onmouseup = null;
+					var nl = pz(obj);					
+		    			if(nl){
+		    				MTween(nl,{
+		    					top:arr[obj.index].top,
+		    					left:arr[obj.index].left
+		    				},300);
+		    				
+		    				MTween(obj,{
+		    					top:arr[nl.index].top,
+		    					left:arr[nl.index].left
+		    				},300);
+		    				nl.style.border = '';
+		    				[nl.index,obj.index] = [obj.index,nl.index];
+		    				
+		    			}else{
+		    				MTween(obj,{
+		    					left:arr[obj.index].left,
+		    					top:arr[obj.index].top
+		    				},300)		    				
+		    			}
+				};
+				return false;
+			};
+		}
+	//最小距离
+	function jl(obj1,obj2){
+		var a = obj1.offsetLeft - obj2.offsetLeft;
+		var b = obj1.offsetTop - obj2.offsetTop;
+		return Math.sqrt(a*a + b*b);
+	};
+	
+	//求出离自身距离最近的元素
+	function pz(obj){
+		var value = Infinity;
+		var index = -1;
+		for (var i = 0;i < listLi.length;i++) {
+			if (tools.duang(obj,listLi[i]) && obj != listLi[i]) {
+				var s = jl(obj,listLi[i]);
+				if (s < value) {
+					value = s;
+					index = i;
+				}
+			}
+		}
+		if (index != -1) {
+			return listLi[index];//如果碰撞，返回原来的位置
+		} else{
+			return false;
+		}
+	};
+	
+	
+	
+	};
+</script>
+</head>
+<body>
+	<ul id="list" class="clearFix"></ul>
+	<input type="button" id="btn" value="打乱顺序" />
+</body>
+</html>

@@ -1,0 +1,179 @@
+
+<!DOCTYPE HTML>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<title>妙味课堂-JS4课练习-游戏：你的鼠标有多快？</title>
+<style>
+body {
+	background: #f1f1f1;
+	font-family: 微软雅黑;
+	font-size: 16px;
+	user-select: none;
+}
+
+#box {
+	overflow: hidden;
+	width: 800px;
+	height: 450px;
+	border: 1px solid #066;
+	background: #FFF;
+	margin: 20px auto 0;
+	position: relative;
+	top: -85px;
+	left: 0;
+}
+
+#fraction {
+	width: 130px;
+	border: 1px solid #066;
+	position: relative;
+	top: 17px;
+	left: 115px;
+	background: #FFC;
+	padding: 10px;
+}
+
+#fraction p {
+	margin: 0;
+	font-family: 微软雅黑;
+	font-size: 16px;
+	line-height: 30px;
+}
+
+#alert {
+	text-align: center;
+}
+
+#qq img {
+	position: absolute;
+	left: 0px;
+	top: 0px;
+}
+#qq img::selection{
+	background: none;
+}
+</style>
+<script src="mTween3.js"></script>
+<script src="tools.js"></script>
+<script>
+
+	/*
+		1. 图片下落的时候，没有点中
+				到达了指定的目标点
+				box要抖动
+					抖动结束之后，图片随机算一个left，top从0开始继续下落，src随机取一个值
+						继续下落
+						到达了指定的目标点
+						box要抖动
+							抖动结束之后，图片随机算一个left，top从0开始继续下落，src随机取一个值
+
+				失分
+
+
+		2. 图片下落的过程中，点中了
+			图片换一个bad.png 抖动图片，抖动结束之后
+				图片随机算一个left，top从0开始继续下落，src随机取一个值
+					图片下落的过程中，点中了
+						图片换一个bad.png 抖动图片，抖动结束之后
+							图片随机算一个left，top从0开始继续下落，src随机取一个值
+				得分
+	*/
+
+	window.onload = function(){
+		var imgBox = $('#qq');
+		var btn = $('#btn');
+		var box = $('#box');
+		var imgs = $('#runImg');
+		var cous = $('p',$('#fraction'));
+		var timer = null;
+		var t = 8000;
+		var lose = 0;
+		var win = 0;
+		imgs.style.top = -24+'px';
+		
+	 function run(){
+		var n = Math.round(Math.random()*776);
+		var s =Math.round(Math.random()*10)+1;
+		imgs.src = 'img/'+s+'.png';
+		imgs.style.left = n+'px';
+		imgs.style.top = -24+'px';
+		btn.value = '游戏进行中……';
+		t-=400;
+		if (t<800) {
+			t=800;
+		}
+		MTween(imgs,{top:426},t,"linear",function(){
+			imgs.style.top = -24+'px';
+			shake(box,'top',16,function(){
+				lose++;
+				cous[1].innerHTML = '失分：'+lose+' 分'	
+				
+				if (lose>5) {
+					alert("game over！！！")
+					init();
+				}else{
+					run()
+				}							
+			})			
+		})
+	}
+	 
+		function init(){
+			btn.disabled = false;
+			btn.value = '开始游戏';
+			lose = 0;
+			win = 0;
+			t = 8000;
+			cous[1].innerHTML = '失分：0 分'
+			cous[0].innerHTML = '得分：0 分'
+		}
+				
+		btn.onclick = function(){
+			this.disabled = true;
+			run();
+		}
+		
+			imgs.onmousedown = function(){
+				if( this.timer2 ) return;
+				clearInterval(this.timer);
+				imgs.src = "img/qq.png";
+				shake(imgs,'left',16,function(){
+					win++;
+					if (win>20) {
+						alert("算你手快!!!")
+						btn.disabled = false;
+						init()
+					}else{
+						run()
+					}
+					imgs.style.top = -24+'px';
+					cous[0].innerHTML = '得分：'+win+' 分'										
+				});
+			}
+		
+		
+	};
+</script>
+</head>
+
+<body>
+
+<div id="alert">
+	<h2>你的鼠标有多快？</h2>
+  <p>游戏说明：点击“开始游戏”，随机掉下QQ表情，点中它，千万别让它掉下去！！</p>
+  <input type="button" value="开始游戏" id="btn" />
+</div>
+<div id="fraction">
+  	<p>得分：0 分</p>
+  	<p>失分：0 分</p>
+</div>
+<div id="box">
+	
+  <div id="qq">
+  	<img src="img/1.png" id="runImg" />
+  </div>
+</div>
+
+</body>
+</html>
