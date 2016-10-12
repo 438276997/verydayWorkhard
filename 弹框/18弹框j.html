@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title></title>
+<style>
+	*{
+		padding: 0;
+		margin:0;
+	}
+	#btn {
+		width: 100px;
+		height: 20px;
+		margin-bottom: 20px;
+	}
+	#drag {
+		width: 500px;
+		height: 300px;
+		background: #fff;
+		position: absolute;
+		left: 0;
+		top: 0;
+		display: none;
+		border: 2px solid #000;
+		z-index: 100;
+	}
+	h2{
+		cursor: move;/*鼠标移动时变换样式 pointer*/
+		width: 100%;
+		height: 40px;
+		background: skyblue;
+		border-bottom: 1px solid #000;
+	}
+	
+	.lefts{
+		width: 50px;
+		height: 30px;
+		position: absolute;
+		right: 90px;
+		bottom: 20px;
+	}
+	.rights{
+		width: 50px;
+		height: 30px;
+		position: absolute;
+		right: 20px;
+		bottom: 20px;
+	}
+	.rights:hover{
+		background: skyblue;
+	}
+	.lefts:hover{
+		background: skyblue;
+	}
+	
+	input{
+		outline: none;
+	}
+	#mask {
+		position: absolute;
+		left: 0;
+		top: 0;
+		width: 100%;
+		height: 100%;
+		background: #000;
+		opacity: .5;
+		display: none;
+	}
+</style>
+<script src="jquery.js"></script>
+<script src="jquerydrag.js"></script>
+<script src="jquery.drags.js"></script>
+
+</head>
+<body>
+		<input type="button" id="btn" value="弹出" />
+		<div id="drag">
+			<!--<h2>这是标题</h2>-->
+		</div>
+	<div id="mask"></div>
+	<script>
+	$('#btn').on('click',function(){
+		
+		$('#mask').show()
+		$('#drag').show()
+		$("#drag").dialog({
+				width:400,
+				height:250,
+				title:"简单的弹框",
+				content:'这是内容'
+			})
+			$("#drag").css({
+				top: 150,
+				left: $(window).width()/2- $("#drag").width()/2
+			})
+			var obj = {
+					limit:true,
+					moveObj:"#drag"
+				}
+			$("#drag h2").drag(obj);
+	})	
+	
+	
+	</script>
+</body>
+</html>
